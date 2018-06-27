@@ -2,7 +2,7 @@
  * jedge_uart.h
  *
  *  Created on: Jun 19, 2018
- *      Author: midimaster21b
+ *      Author: Joshua Edgcombe
  */
 
 #ifndef JEDGE_UART_H_

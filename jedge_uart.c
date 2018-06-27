@@ -2,7 +2,7 @@
  * jedge_uart.c
  *
  *  Created on: Jun 19, 2018
- *      Author: midimaster21b
+ *      Author: Joshua Edgcombe
  */
 
 #include "jedge_uart.h"
