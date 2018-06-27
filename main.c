@@ -13,7 +13,7 @@ void main(void)
 
   UART_init(EUSCI_device);
 
-  UART_send(EUSCI_device, 'H');
+  UART_send(EUSCI_device, "Hello, World!\n");
 
   while(1);
 }

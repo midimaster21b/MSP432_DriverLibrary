@@ -11,6 +11,6 @@
 #include "msp.h"
 
 void UART_init(EUSCI_A_Type *EUSCI_device);
-void UART_send(EUSCI_A_Type *EUSCI_device, char c);
+void UART_send(EUSCI_A_Type *EUSCI_device, char *str);
 
 #endif /* JEDGE_UART_H_ */

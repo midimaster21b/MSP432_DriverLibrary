@@ -37,15 +37,23 @@ void UART_init(EUSCI_A_Type *EUSCI_device) {
   EUSCI_device->CTLW0 &= ~UCSWRST;
 }
 
-void UART_send(EUSCI_A_Type *EUSCI_device, char *c) {
-  // If transmit buffer is not empty, wait for it to be empty
-  while(!(EUSCI_device->IFG & UCTXIFG));
+void UART_send(EUSCI_A_Type *EUSCI_device, char *str) {
+  unsigned offset = 0;
 
-  // Put character in buffer to be transferred
-  EUSCI_device->TXBUF = c;
+  // Iterate through supplied characters
+  while(*(str+offset) != '\0') {
+    // If transmit buffer is not empty, wait for it to be empty
+    while(!(EUSCI_device->IFG & UCTXIFG));
 
-  // Wait until the transmit has been moved to the shift register before returning
-  while(!(EUSCI_device->IFG & UCTXCPTIFG));
+    // Put character in buffer to be transferred
+    EUSCI_device->TXBUF = *(str+offset);
+
+    // Wait until the transmit has been moved to the shift register before continuing
+    while(!(EUSCI_device->IFG & UCTXCPTIFG));
+
+    // Increment the address offset
+    offset = offset + 1;
+  }
 }
 
 
