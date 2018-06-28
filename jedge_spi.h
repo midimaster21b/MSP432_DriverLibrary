@@ -50,4 +50,6 @@ void SPI_init(EUSCI_SPI_TYPE *EUSCI_device, EUSCI_SPI_config *config);
 void SPI_send(EUSCI_SPI_TYPE *EUSCI_device, char *data);
 uint8_t SPI_send_with_response(EUSCI_SPI_TYPE *EUSCI_device, uint8_t data);
 
+void SPI_test(void);
+
 #endif /* JEDGE_SPI_H_ */

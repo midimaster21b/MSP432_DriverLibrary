@@ -13,4 +13,6 @@
 void UART_init(EUSCI_A_Type *EUSCI_device);
 void UART_send(EUSCI_A_Type *EUSCI_device, char *str);
 
+void UART_test(void);
+
 #endif /* JEDGE_UART_H_ */

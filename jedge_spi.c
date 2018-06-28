@@ -67,3 +67,24 @@ uint8_t SPI_send_with_response(EUSCI_SPI_TYPE *EUSCI_device, uint8_t data) {
   // Return the supplied byte
   return EUSCI_device->RXBUF;
 }
+
+void SPI_test(void) {
+  // Create SPI configuration struct
+  EUSCI_SPI_config SPI_config = {
+    .clock_phase = 1,
+    .clock_polarity = 0,
+    .msb_first = 1,
+    .seven_bit_data = 0,
+    .master_mode = 1,
+    .eusci_mode_bit_10 = 1,
+    .eusci_mode_bit_9 = 0,
+    .sync_mode = 1,
+    .clk_sel_bit_7 = 1,
+    .clk_sel_bit_6 = 0,
+    .ste_mode = 1
+  };
+
+  EUSCI_B_SPI_Type *EUSCI_SPI_device = EUSCI_B0_SPI;
+  SPI_init(EUSCI_SPI_device, &SPI_config);
+  SPI_send(EUSCI_SPI_device, "Hello, SPI!");
+}

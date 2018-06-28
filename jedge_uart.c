@@ -56,4 +56,8 @@ void UART_send(EUSCI_A_Type *EUSCI_device, char *str) {
   }
 }
 
-
+void UART_test(void) {
+  EUSCI_A_Type *EUSCI_UART_device = EUSCI_A0;
+  UART_init(EUSCI_UART_device);
+  UART_send(EUSCI_UART_device, "Hello, UART!");
+}
