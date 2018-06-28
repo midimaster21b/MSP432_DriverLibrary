@@ -100,3 +100,23 @@ void st7735_hard_reset(void) {
   // Pull reset line high
   TFT_RESET_PORT->OUT |= TFT_RESET_MASK;
 }
+
+/************************
+ * Sends data to the LCD.
+ ************************/
+uint8_t st7735_send_data(uint8_t data) {
+  // Set the data/command line high, signifying data is being supplied
+  TFT_DC_PORT->OUT |= TFT_DC_MASK;
+
+  return SPI_send_with_response(EUSCI_device, data);
+}
+
+/*****************************
+ * Sends a command to the LCD.
+ *****************************/
+uint8_t st7735_send_command(uint8_t cmd) {
+  // Set the data/command line low, signifying a command is being supplied
+  TFT_DC_PORT->OUT &= ~TFT_DC_MASK;
+
+  return SPI_send_with_response(EUSCI_device, cmd);
+}

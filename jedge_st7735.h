@@ -40,10 +40,15 @@
 #define TFT_SPI_MISO_PIN  7
 #define TFT_SPI_MISO_MASK 1 << TFT_SPI_MISO_PIN
 
+// st7735 initialization functions
 void st7735_setup(void);
 void st7735_setup_pins(void);
 void st7735_setup_peripherals(void);
 void st7735_setup_peripherals_spi(void);
 void st7735_hard_reset(void);
+
+// st7735 communication functions
+uint8_t st7735_send_data(uint8_t data);
+uint8_t st7735_send_command(uint8_t cmd);
 
 #endif /* JEDGE_ST7735_H_ */
