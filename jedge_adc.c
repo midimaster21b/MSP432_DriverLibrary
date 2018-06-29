@@ -34,7 +34,7 @@ void ADC_init(void) {
   // Clear bits
   ADC14->CTL0 &= ~ADC14_CTL0_SSEL_MASK;
   // Set to master clock
-  ADC14->CTL0 |= ADC14_CTL0_SSEL__MCLK << ADC14_CTL0_SSEL__MCLK;
+  ADC14->CTL0 |= ADC14_CTL0_SSEL__MCLK;
 
   // ADC14DIVx
   // Defaults to no clock division. *thumbs up emoji*
@@ -53,7 +53,7 @@ void ADC_init(void) {
   ADC14->IER0 |= ADC14_IER0_IE0; // Enable register (necessary for interrupt flag to be set?)
 
   // Enable conversions
-  ADC14->CTL0 &= ~ADC14_CTL0_ENC;
+  ADC14->CTL0 |= ADC14_CTL0_ENC;
 }
 
 void ADC_start_conversion(void) {
