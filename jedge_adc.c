@@ -36,19 +36,16 @@ void ADC_init(void) {
   // Set to master clock
   ADC14->CTL0 |= ADC14_CTL0_SSEL__MCLK;
 
-  // Set pulse mode
+  // Set to pulse mode
   ADC14->CTL0 |= ADC14_CTL0_SHP;
 
   // ADC14DIVx
   // Defaults to no clock division. *thumbs up emoji*
 
-  // ADC14SHP <!-- Not sure if this needs to be modified. Deals with SAMPCON signal
-
   /****************************
    * ADC14MCTL0 register setup
    ****************************/
   ADC14->MCTL[0] = ADC14_MCTLN_INCH_9; // Assign input channel 9 (A9) to this memory
-
 
   /****************************
    * ADC14IER0 register setup
@@ -74,8 +71,6 @@ void ADC_stop_conversions(void) {
 
 uint16_t ADC_get_result(void) {
   ADC_start_conversion();
-
-  // Wait for any previous sample to finish
 
   // This is the wrong way to do this...?
   while(ADC14->CTL0 & ADC14_CTL0_BUSY);
