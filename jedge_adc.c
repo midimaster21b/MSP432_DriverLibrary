@@ -30,11 +30,14 @@ void ADC_init(void) {
   /* ADC14_CTL0_CONSEQ_0; // Single channel, single conversion */
   /* ADC14_CTL0_CONSEQ_2; // Single channel, repeat conversion */
 
-  // ADC14SSELx
+  // ADC14SSELx Clock select
   // Clear bits
   ADC14->CTL0 &= ~ADC14_CTL0_SSEL_MASK;
   // Set to master clock
   ADC14->CTL0 |= ADC14_CTL0_SSEL__MCLK;
+
+  // Set pulse mode
+  ADC14->CTL0 |= ADC14_CTL0_SHP;
 
   // ADC14DIVx
   // Defaults to no clock division. *thumbs up emoji*
