@@ -56,8 +56,35 @@ void UART_send(EUSCI_A_Type *EUSCI_device, char *str) {
   }
 }
 
+char UART_recv(EUSCI_A_Type *EUSCI_device) {
+  // Wait until the receive buffer has been filled
+  while(!(EUSCI_device->IFG & UCRXIFG));
+
+  // Return the supplied byte
+  return EUSCI_device->RXBUF;
+}
+
+
 void UART_test(void) {
   EUSCI_A_Type *EUSCI_UART_device = EUSCI_A0;
   UART_init(EUSCI_UART_device);
   UART_send(EUSCI_UART_device, "Hello, UART!");
+}
+
+void UART_learning_activity(void) {
+  char retval[] = {'c', '\r', '\n', '\0'};
+  EUSCI_A_Type *EUSCI_UART_device = EUSCI_A0;
+  UART_init(EUSCI_UART_device);
+
+  while(1) {
+    if(retval[0] != '\r' && retval[0] != '\n') {
+      UART_send(EUSCI_UART_device, "Enter number: ");
+    }
+
+    retval[0] = UART_recv(EUSCI_UART_device);
+
+    if(retval[0] != '\r' && retval[0] != '\n') {
+      UART_send(EUSCI_UART_device, retval);
+    }
+  }
 }
