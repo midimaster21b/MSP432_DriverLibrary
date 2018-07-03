@@ -367,8 +367,8 @@
 ////////////////////////////////////////////
 // 1st parameter
 // Interface pixel format
-#define ST7735_COLMOD_IFPF_OFS  7
-#define ST7735_COLMOD_IFPF_MASK (1 << ST7735_COLMOD_IFPF_OFS)
+#define ST7735_COLMOD_IFPF_OFS  0
+#define ST7735_COLMOD_IFPF_MASK (7 << ST7735_COLMOD_IFPF_OFS)
 
 #define ST7735_COLMOD_IFPF_12_BIT (3 << ST7735_COLMOD_IFPF_OFS)
 #define ST7735_COLMOD_IFPF_16_BIT (5 << ST7735_COLMOD_IFPF_OFS)
@@ -400,6 +400,8 @@
 #define ST7735_NVCTR1     0xD9 // NVM control status
 #define ST7735_NVCTR2     0xDE // NVM read command
 #define ST7735_NVCTR3     0xDF // NVM write command
+#define ST7735_GMCTRP1    0xE0 // Positive gamma correction characteristics
+#define ST7735_GMCTRN1    0xE1 // Negative gamma correction characteristics
 
 // Panel function argument definitions
 
@@ -419,12 +421,12 @@
 // 2nd parameter
 // Front porch A(Normal mode)
 #define ST7735_FRMCTR1_FPA_OFS  0
-#define ST7735_FRMCTR1_FPA_MASK (0x0F << ST7735_FRMCTR1_FPA_OFS)
+#define ST7735_FRMCTR1_FPA_MASK (0x3F << ST7735_FRMCTR1_FPA_OFS)
 
 // 3rd parameter
 // Back porch A(Normal mode)
 #define ST7735_FRMCTR1_BPA_OFS  0
-#define ST7735_FRMCTR1_BPA_MASK (0x0F << ST7735_FRMCTR1_BPA_OFS)
+#define ST7735_FRMCTR1_BPA_MASK (0x3F << ST7735_FRMCTR1_BPA_OFS)
 
 /////////////////////////////////////////////////////////////////
 // FRMCTR2: Frame rate control (In idle mode/8 colors) (pg. 127)
@@ -442,12 +444,12 @@
 // 2nd parameter
 // Front porch B(Idle mode)
 #define ST7735_FRMCTR1_FPB_OFS  0
-#define ST7735_FRMCTR1_FPB_MASK (0x0F << ST7735_FRMCTR1_FPB_OFS)
+#define ST7735_FRMCTR1_FPB_MASK (0x3F << ST7735_FRMCTR1_FPB_OFS)
 
 // 3rd parameter
 // Back porch B(Idle mode)
 #define ST7735_FRMCTR1_BPB_OFS  0
-#define ST7735_FRMCTR1_BPB_MASK (0x0F << ST7735_FRMCTR1_BPB_OFS)
+#define ST7735_FRMCTR1_BPB_MASK (0x3F << ST7735_FRMCTR1_BPB_OFS)
 
 ///////////////////////////////////////////////////////////////////////
 // FRMCTR3: Frame rate control (In partial mode/full colors) (pg. 128)
@@ -468,12 +470,12 @@
 // 2nd parameter
 // Front porch C(Partial mode)
 #define ST7735_FRMCTR1_FPC_OFS  0
-#define ST7735_FRMCTR1_FPC_MASK (0x0F << ST7735_FRMCTR1_FPC_OFS)
+#define ST7735_FRMCTR1_FPC_MASK (0x3F << ST7735_FRMCTR1_FPC_OFS)
 
 // 3rd parameter
 // Back porch C(Partial mode)
 #define ST7735_FRMCTR1_BPC_OFS  0
-#define ST7735_FRMCTR1_BPC_MASK (0x0F << ST7735_FRMCTR1_BPC_OFS)
+#define ST7735_FRMCTR1_BPC_MASK (0x3F << ST7735_FRMCTR1_BPC_OFS)
 
 // 4th parameter
 // Set one line period D(Partial mode)
@@ -483,12 +485,12 @@
 // 5th parameter
 // Front porch D(Partial mode)
 #define ST7735_FRMCTR1_FPD_OFS  0
-#define ST7735_FRMCTR1_FPD_MASK (0x0F << ST7735_FRMCTR1_FPD_OFS)
+#define ST7735_FRMCTR1_FPD_MASK (0x3F << ST7735_FRMCTR1_FPD_OFS)
 
 // 6th parameter
 // Back porch D(Partial mode)
 #define ST7735_FRMCTR1_BPD_OFS  0
-#define ST7735_FRMCTR1_BPD_MASK (0x0F << ST7735_FRMCTR1_BPD_OFS)
+#define ST7735_FRMCTR1_BPD_MASK (0x3F << ST7735_FRMCTR1_BPD_OFS)
 
 ///////////////////////////////////////////////
 // INVCTR: Display inversion control (pg. 129)
@@ -524,7 +526,7 @@
 
 // VRHP: GVDD Voltages (Voltages 4.7V to 3.15V)
 #define ST7735_PWCTR1_VRHP_OFS  0
-#define ST7735_PWCTR1_VRHP_MASK (0x1F << ST7735_PWCTR1_VHRP_OFS)
+#define ST7735_PWCTR1_VRHP_MASK (0x1F << ST7735_PWCTR1_VRHP_OFS)
 
 #define ST7735_PWCTR1_VRHP_4_7  (0x00 << ST7735_PWCTR1_VRHP_OFS)
 #define ST7735_PWCTR1_VRHP_4_65 (0x01 << ST7735_PWCTR1_VRHP_OFS)
@@ -562,7 +564,7 @@
 // 2nd parameter
 // VRHN: GVCL Voltages (Voltages -4.7V to -3.15V available)
 #define ST7735_PWCTR1_VRHN_OFS  0
-#define ST7735_PWCTR1_VRHN_MASK (0x1F << ST7735_PWCTR1_VHRN_OFS)
+#define ST7735_PWCTR1_VRHN_MASK (0x1F << ST7735_PWCTR1_VRHN_OFS)
 
 #define ST7735_PWCTR1_VRHN_4_7  (0x00 << ST7735_PWCTR1_VRHN_OFS)
 #define ST7735_PWCTR1_VRHN_4_65 (0x01 << ST7735_PWCTR1_VRHN_OFS)
@@ -993,9 +995,38 @@ void st7735_setup_pins(void);
 void st7735_setup_peripherals(void);
 void st7735_setup_peripherals_spi(void);
 void st7735_hard_reset(void);
+void st7735_configure_screen(void);
+void st7735_configure_screen_power(void);
+void st7735_configure_screen_display_settings(void);
+
+// st7735 helper functions
+void st7735_test(void);
+void st7735_delay(uint16_t milliseconds);
 
 // st7735 communication functions
 uint8_t st7735_send_data(uint8_t data);
 uint8_t st7735_send_command(uint8_t cmd);
+
+// st7735 commands
+void st7735_software_reset(void);
+void st7735_sleep_out(void);
+void st7735_inversion_control(uint8_t inversion_flags);
+void st7735_power_control_one(uint8_t avdd, uint8_t vrhp, uint8_t vrhn, uint8_t mode);
+void st7735_power_control_two(uint8_t vgh25, uint8_t vglsel, uint8_t vghbt);
+void st7735_power_control_three(uint8_t sap_amplifier_current, uint8_t ap_amplifier_current, uint16_t booster_cycles);
+void st7735_power_control_four(uint8_t sap_amplifier_current, uint8_t ap_amplifier_current, uint16_t booster_cycles);
+void st7735_power_control_five(uint8_t sap_amplifier_current, uint8_t ap_amplifier_current, uint16_t booster_cycles);
+void st7735_vcom_voltage_control(uint8_t vcom_voltage);
+void st7735_inversion_off(void);
+void st7735_memory_address_control(uint8_t flags);
+void st7735_set_color_mode(uint8_t interface_pixel_format);
+void st7735_column_address_set(uint16_t start_column, uint16_t end_column);
+void st7735_row_address_set(uint16_t start_row, uint16_t end_row);
+void st7735_normal_display_mode(void);
+void st7735_display_on(void);
+void st7735_set_positive_gamma(uint8_t *positive_gamma_corrections);
+void st7735_set_negative_gamma(uint8_t *negative_gamma_corrections);
+void st7735_frame_control(uint16_t frmctr_cmd, uint8_t *period, uint8_t *front_porch, uint8_t *back_porch);
+
 
 #endif /* JEDGE_ST7735_H_ */
