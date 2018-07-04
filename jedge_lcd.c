@@ -6,6 +6,7 @@
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "jedge_lcd.h"
 #include "jedge_st7735.h"
 
@@ -16,25 +17,61 @@ uint8_t num_rows = 160;
 uint16_t background_color;
 uint16_t foreground_color;
 
+#define NUM_BANDS 4
+
 void lcd_test(void) {
   st7735_setup();
 
   background_color = lcd_get_color(0x00, 0x00, 0x00);
   foreground_color = lcd_get_color(0x0F, 0x0F, 0x0F);
 
+  /********************
+   * Rect drawing test
+   ********************/
   lcd_clear_screen(background_color);
-  /* lcd_draw_rect(15, 50, 100, 100, color); */
+  lcd_draw_rect(15, 50, 100, 100, foreground_color);
 
+
+  /*****************************
+   * Single bar equalizer test.
+   *****************************/
   int x;
+  lcd_clear_screen(background_color);
+
+  for(x=0; x < 30; x++) {
+    lcd_set_amplitude(x*4);
+    st7735_delay(200);
+  }
+
+  for(x=50; x >= 0; x--) {
+    lcd_set_amplitude(x*2);
+    st7735_delay(200);
+  }
+
+  /*******************
+   * Multi band test.
+   *******************/
+  uint8_t band_amps[NUM_BANDS] = {0, 0, 0, 0};
+
   // Climb higher
-  for(x=0; x < 50; x++) {
-    lcd_set_amplitude(x<<1);
+  for(x=0; x < 30; x++) {
+    band_amps[0] = x;
+    band_amps[1] = 2*x;
+    band_amps[2] = 3*x;
+    band_amps[3] = 4*x;
+
+    lcd_set_amplitude_multi(band_amps, NUM_BANDS);
     st7735_delay(200);
   }
 
   // Reduce height
-  for(x=80; x > 0; x--) {
-    lcd_set_amplitude(x);
+  for(x=30; x >= 0; x--) {
+    band_amps[3] = x;
+    band_amps[2] = 2*x;
+    band_amps[1] = 3*x;
+    band_amps[0] = 4*x;
+
+    lcd_set_amplitude_multi(band_amps, NUM_BANDS);
     st7735_delay(200);
   }
 }
@@ -67,6 +104,51 @@ void lcd_set_amplitude(uint8_t amplitude) {
 
   // Draw the appropiate rectangle (delta)
   lcd_draw_rect(0, row_start, num_cols, row_stop, color);
+}
+
+/*****************************************************
+ * LCD amplitude setter for equalizer
+ *
+ * Description: Amplitude function for equalizer bars
+ *****************************************************/
+void lcd_set_amplitude_multi(uint8_t *amplitudes, uint8_t num_bands) {
+
+  // Zero out previous amplitudes
+  static uint8_t prev_amplitudes[NUM_BANDS] = {0};
+
+  uint8_t col_start;
+  uint8_t col_stop;
+  uint16_t color;
+
+  // Calculate the number of rows per band
+  uint8_t rows_per_band = num_rows / num_bands;
+
+  uint8_t band_iter;
+
+  for(band_iter=0; band_iter < num_bands; band_iter++) {
+    if(*(prev_amplitudes+band_iter) > *(amplitudes+band_iter)) {
+      col_start = *(amplitudes+band_iter);
+      col_stop = *(prev_amplitudes+band_iter);
+
+      color = background_color;
+    }
+    else if(*(prev_amplitudes+band_iter) < *(amplitudes+band_iter)) {
+      col_start = *(prev_amplitudes+band_iter);
+      col_stop = *(amplitudes+band_iter);
+
+      color = foreground_color;
+    }
+    else {
+      // If they are equal, nothing needs to be drawn
+      continue;
+    }
+
+    // Update previous amplitude
+    *(prev_amplitudes+band_iter) = *(amplitudes+band_iter);
+
+    // Draw the appropiate rectangle (delta)
+    lcd_draw_rect(col_start, band_iter*rows_per_band, col_stop, (band_iter+1)*rows_per_band, color);
+  }
 }
 
 void lcd_prepare_write_area(uint8_t start_col, uint8_t start_row, uint8_t end_col, uint8_t end_row) {

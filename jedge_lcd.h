@@ -13,6 +13,7 @@
 // Application specific functions
 void lcd_test(void);
 void lcd_set_amplitude(uint8_t amplitude);
+void lcd_set_amplitude_multi(uint8_t *amplitude, uint8_t num_bands);
 
 // General LCD functions
 void lcd_prepare_write_area(uint8_t start_col, uint8_t start_row, uint8_t end_col, uint8_t end_row);
