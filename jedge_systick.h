@@ -11,7 +11,8 @@
 #include <stdint.h>
 #include "msp.h"
 
-#define MASTER_CLK_FREQ 3000000
+/* #define MASTER_CLK_FREQ 3000000 */
+#define MASTER_CLK_FREQ 48000000
 
 void systick_setup(uint32_t max_value, uint8_t interrupt_enable);
 void systick_start(void);
