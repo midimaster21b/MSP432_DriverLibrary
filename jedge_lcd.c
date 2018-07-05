@@ -19,6 +19,15 @@ uint16_t foreground_color;
 
 #define NUM_BANDS 4
 
+void lcd_init(void) {
+  st7735_setup();
+
+  background_color = lcd_get_color(0x00, 0x00, 0x00);
+  foreground_color = lcd_get_color(0x0F, 0x0F, 0x0F);
+
+  lcd_clear_screen(background_color);
+}
+
 void lcd_test(void) {
   st7735_setup();
 

@@ -11,6 +11,7 @@
 #define JEDGE_LCD_H_
 
 // Application specific functions
+void lcd_init(void);
 void lcd_test(void);
 void lcd_set_amplitude(uint8_t amplitude);
 void lcd_set_amplitude_multi(uint8_t *amplitude, uint8_t num_bands);
