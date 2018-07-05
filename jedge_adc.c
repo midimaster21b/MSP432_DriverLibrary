@@ -30,14 +30,15 @@ void ADC_init(void) {
   ADC14->CTL0 &= ~ADC14_CTL0_ENC;
 
   // Enable multiple sample conversions (continuous sampling)
-  ADC14->CTL0 |= ADC14_CTL0_MSC;
+  /* ADC14->CTL0 |= ADC14_CTL0_MSC; */
 
   // ADC14SHTXX (Setting sample and hold time for register sets, not necessary)
 
   // ADC14CONSEQx (Conversion mode, single channel, single conversion by default)
   /* ADC14_CTL0_CONSEQ_0; // Single channel, single conversion */
   /* ADC14_CTL0_CONSEQ_2; // Single channel, repeat conversion */
-  ADC14->CTL0 |= ADC14_CTL0_CONSEQ_2;
+  /* ADC14->CTL0 |= ADC14_CTL0_CONSEQ_2; */
+  ADC14->CTL0 |= ADC14_CTL0_CONSEQ_0;
 
   // ADC14SSELx Clock select
   // Clear bits
