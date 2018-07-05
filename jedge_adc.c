@@ -5,6 +5,7 @@
  *      Author: Joshua Edgcombe
  */
 
+#include "driverlib.h"
 #include "jedge_adc.h"
 
 void ADC_init(void) {
@@ -50,7 +51,10 @@ void ADC_init(void) {
   /****************************
    * ADC14IER0 register setup
    ****************************/
-  ADC14->IER0 |= ADC14_IER0_IE0; // Enable register (necessary for interrupt flag to be set?)
+  ADC14->IER0 |= ADC14_IER0_IE0; // Interrupt enable register
+
+  // Enable the interrupt to be triggered
+  MAP_Interrupt_enableInterrupt(INT_ADC14);
 
   // Enable conversions
   ADC14->CTL0 |= ADC14_CTL0_ENC;
