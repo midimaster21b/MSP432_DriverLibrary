@@ -8,6 +8,13 @@
 #include "driverlib.h"
 #include "jedge_adc.h"
 
+/**
+ * @brief Initialize the ADC peripheral and pins.
+ *
+ * Initialize the ADC peripheral and pins for analog pin 9 on ADC channel zero and ADC storage zero.
+ * The ADC is set to sample using the master clock currently. An interrupt is enabled for completion of
+ * sampling for ADC channel 0.
+ */
 void ADC_init(void) {
   // Handle PIN muxing to analog line SEL0 = SEL1 = 1
   ADC_PORT->SEL0 |= ADC_MASK;
@@ -60,6 +67,11 @@ void ADC_init(void) {
   ADC14->CTL0 |= ADC14_CTL0_ENC;
 }
 
+/**
+ * @brief Start ADC conversion(s) depending on configuration
+ *
+ * This is a blocking call that waits for the ADC14_CTL0_BUSY flag to be cleared before starting the conversion(s).
+ */
 void ADC_start_conversion(void) {
   // Wait for any previous samples to finish
   while(ADC14->CTL0 & ADC14_CTL0_BUSY);
@@ -68,11 +80,24 @@ void ADC_start_conversion(void) {
   ADC14->CTL0 |= ADC14_CTL0_SC;
 }
 
+/**
+ * @brief Stops ADC conversions
+ *
+ * This function will stop any currently running ADC conversions and the values stored in the
+ * ADC memory corresponding to ADC conversions running at the time of stopping the conversions
+ * will contain invalid results.
+ */
 void ADC_stop_conversions(void) {
   // Clear enable conversion bit (NOTE: DOESN'T WORK FOR ALL CASES!!!)
   ADC14->CTL0 &= ~ADC14_CTL0_ENC;
 }
 
+/**
+ * @brief Perform an ADC conversion and return the resulting value as a 16 bit value.
+ *
+ * This is a blocking call that waits for the ADC14_CTL0_BUSY flag to be cleared before starting the first conversion.
+ * The function then waits for the ADC14_CTL0_BUSY flag to be cleared again and returns the result stored in ADC memory.
+ */
 uint16_t ADC_get_result(void) {
   ADC_start_conversion();
 
