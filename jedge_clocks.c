@@ -14,7 +14,7 @@ void init_clocks(void) {
   MAP_GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0);
 
   // Set the DCO to 4 MHz
-  CS_setDCOFrequency(4000000);
+  /* CS_setDCOFrequency(4000000); */
 
   // Set external (LFXT, HFXT) frequencies
   // Low frequency is 32kHz, External is SW configurable from 1-48MHz
@@ -33,10 +33,10 @@ void init_clocks(void) {
   // Initialize master clock to high frequency external clock
   CS_initClockSignal(CS_MCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
 
-  // Initializes CS_HSMCLK
-  MAP_CS_initClockSignal(CS_HSMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_16);
+  // Initialize HSMCLK
+  MAP_CS_initClockSignal(CS_HSMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
 
-  // Initialize SMCLK to high frequency DCO clock with 1 times clock divider
-  MAP_CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+  // Initialize SMCLK
+  MAP_CS_initClockSignal(CS_SMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_2);
 }
 
