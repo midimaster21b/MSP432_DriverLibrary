@@ -8,6 +8,22 @@
 #ifndef JEDGE_OV7670_H_
 #define JEDGE_OV7670_H_
 
+/*****************************
+ * Implementation definitions
+ *****************************/
+#define OV7670_EUSCI_INTERFACE EUSCI_B1
+
+#define OV7670_DATA_PORT P9
+#define OV7670_DATA_MASK 0xFF
+
+#define OV7670_CLK_TIMER TIMER_A0
+#define OV7670_CLK_PORT  P7
+#define OV7670_CLK_PIN   3
+#define OV7670_CLK_MASK  (1 << OV7670_CLK_PIN)
+
+/***********************
+ * Register definitions
+ ***********************/
 #define OV7670_REG_GAIN     0x00 // Gain control gain setting
 #define OV7670_REG_BLUE     0x01 // Blue channel gain setting
 #define OV7670_REG_RED      0x02 // Red channel gain setting
@@ -209,5 +225,9 @@
 #define OV7670_REG_RSVD_52  0xC7 // Reserved...
 #define OV7670_REG_RSVD_53  0xC8 // Reserved...
 #define OV7670_REG_SATCTR   0xC9 // Saturation control
+
+void ov7670_test(void);
+void ov7670_init(EUSCI_B_Type *device);
+void ov7670_init_clock_signal(void);
 
 #endif /* JEDGE_OV7670_H_ */
