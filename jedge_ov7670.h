@@ -1,4 +1,4 @@
-p/*
+/*
  * jedge_ov7670.h
  *
  *  Created on: July 6, 2018
