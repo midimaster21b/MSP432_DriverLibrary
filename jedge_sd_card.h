@@ -20,6 +20,7 @@
  **********************/
 #define SD_BYTES_PER_CMD 6
 #define SD_RESET_CMD_CRC 0x4A
+#define SD_CMD8_INIT_CRC 0x43
 
 // Commands
 #define SD_GO_IDLE_STATE_CMD            0x00 // Software reset
@@ -41,11 +42,31 @@
 #define SD_SET_WR_BLOCK_ERASE_COUNT_CMD 0x17
 #define SD_APP_SEND_OP_COND_CMD         0x29 // Check voltage range (SDC v2 only)
 
+/*************************************
+ * Function return status definitions
+ *************************************/
+#define SD_OP_SUCCESS 0x00
+#define SD_OP_FAILURE 0x01
+
+/********************************
+ * Expected response definitions
+ ********************************/
+#define SD_RESPONSE_R1 0x01
+#define SD_RESPONSE_R3 0x03
+#define SD_RESPONSE_R7 0x07
+
+#define SD_RESPONSE_R1_NUM_BYTES 1
+#define SD_RESPONSE_R3_NUM_BYTES 5
+#define SD_RESPONSE_R7_NUM_BYTES 5
+
+
 // SD card functions
-void sd_init(void);
+uint8_t sd_init(void);
 void sd_test(void);
-uint8_t sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC);
+uint8_t *sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC, uint8_t response_type);
 void sd_clock_only(uint32_t num_bytes);
 void sd_clock_only_time(uint32_t milliseconds);
+uint8_t sd_recv_byte(void);
+uint8_t *sd_recv_bytes(uint16_t num_bytes);
 
 #endif /* JEDGE_SD_CARD_H_ */

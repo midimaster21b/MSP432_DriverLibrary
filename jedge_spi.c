@@ -88,6 +88,13 @@ void SPI_send_byte(EUSCI_SPI_TYPE *EUSCI_device, uint8_t data) {
   EUSCI_device->TXBUF = data;
 }
 
+uint8_t SPI_recv_byte(EUSCI_SPI_TYPE *EUSCI_device) {
+  // Wait until the receive buffer has been filled
+  while(!(EUSCI_device->IFG & UCRXIFG));
+
+  // Return the supplied byte
+  return EUSCI_device->RXBUF;
+}
 
 uint8_t SPI_send_with_response(EUSCI_SPI_TYPE *EUSCI_device, uint8_t data) {
   // If transmit buffer is not empty, wait for it to be empty

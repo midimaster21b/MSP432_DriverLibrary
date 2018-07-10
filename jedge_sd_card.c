@@ -32,7 +32,9 @@ EUSCI_SPI_config sd_spi_config = {
   .prescaler = 60           // Sets clock to 400 kHz
 };
 
-void sd_init(void) {
+uint8_t sd_init(void) {
+  uint8_t *retval;
+
   // Set SD chip select pin to output
   SD_CS_PORT->DIR |= SD_CS_MASK;
 
@@ -53,15 +55,35 @@ void sd_init(void) {
   // USING MY SALEAE ANALYZER.
   systick_blocking_wait_ms(50);
 
-  // Put the device into idle state
-  sd_send_command(SD_GO_IDLE_STATE_CMD, 0x00, SD_RESET_CMD_CRC);
+  retval = sd_send_command(SD_GO_IDLE_STATE_CMD, 0x00, SD_RESET_CMD_CRC, SD_RESPONSE_R1);
+
+  // Put the device into idle state (0x01 indicates success)
+  if(*retval != 0x01) {
+    // Free malloc'd memory
+    free(retval);
+
+    // TODO: THIS SHOULD DO SOMETHING EXCEPTIONAL/RETURN SOMETHING BAD!!!
+    return SD_OP_FAILURE;
+  }
+  else {
+    // Success! (but we still need to free that memory...)
+    free(retval);
+  }
+
+  /* systick_blocking_wait_ms(5); */
+
+  retval = sd_send_command(SD_SEND_IF_COND_CMD, 0x000001AA, SD_CMD8_INIT_CRC, SD_RESPONSE_R7);
+
+  free(retval);
+
+  return SD_OP_SUCCESS;
 }
 
 void sd_test(void) {
   sd_init();
 }
 
-uint8_t sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC) {
+uint8_t *sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC, uint8_t response_type) {
   uint8_t cmd[SD_BYTES_PER_CMD];
 
   // Set SD chip select pin low(active?)
@@ -77,18 +99,33 @@ uint8_t sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC) {
 
   SPI_send_data(sd_device, cmd, sizeof(cmd));
 
-  // Wait for a response from the SD card
-  /* sd_clock_only_time(200); */
-  sd_clock_only(50000);
+  uint8_t *recv;
+  uint16_t num_recv_bytes = 0;
+
+  // Handle expected response
+  switch(response_type) {
+  case SD_RESPONSE_R1:
+    num_recv_bytes = SD_RESPONSE_R1_NUM_BYTES;
+    break;
+  case SD_RESPONSE_R3:
+    num_recv_bytes = SD_RESPONSE_R3_NUM_BYTES;
+    break;
+  case SD_RESPONSE_R7:
+    num_recv_bytes = SD_RESPONSE_R7_NUM_BYTES;
+    break;
+  }
+
+  // Receive the response
+  recv = sd_recv_bytes(num_recv_bytes);
 
   // Set SD chip select pin inactive (high)
-  SD_CS_PORT->OUT |= SD_CS_MASK;
+  /* SD_CS_PORT->OUT |= SD_CS_MASK; */
 
   // Send two bytes to ensure SD card doesn't hog MISO line
-  sd_clock_only(2);
+  /* sd_clock_only(2); */
 
   // TODO: Make this the response of the SD card
-  return 0x00;
+  return recv;
 }
 
 void sd_clock_only(uint32_t num_bytes) {
@@ -110,4 +147,61 @@ void sd_clock_only_time(uint32_t milliseconds) {
     // Send 0xFF
     SPI_send_byte(sd_device, 0xFF);
   }
+}
+
+// TODO: Add timeout to function
+uint8_t sd_recv_byte(void) {
+  uint8_t recv = 0xFF;
+
+  // If data is available, receive it first
+  if(sd_device->IFG & UCRXIFG) {
+    recv = sd_device->RXBUF;
+  }
+
+  // Otherwise, send a byte to receive a byte (well, keep the clock going at least)
+  while(recv == 0xFF) {
+    SPI_send_byte(sd_device, 0xFF);
+    recv = SPI_recv_byte(sd_device);
+  }
+
+  return recv;
+}
+
+// TODO: Add timeout to function
+uint8_t *sd_recv_bytes(uint16_t num_bytes) {
+  if(num_bytes == 0) {
+    return NULL;
+  }
+
+  // Initialize function variables
+  uint8_t recv;
+  uint16_t byte_num;
+
+  // Allocate space for return value
+  uint8_t *recv_bytes = malloc(num_bytes * sizeof(uint8_t));
+
+  // If data is available, receive it first
+  if(sd_device->IFG & UCRXIFG) {
+    recv = sd_device->RXBUF;
+  }
+  else {
+    recv = 0xFF;
+  }
+
+  // Otherwise, send a byte to receive a byte (well, keep the clock going at least)
+  while(recv == 0xFF) {
+    SPI_send_byte(sd_device, 0xFF);
+    recv = SPI_recv_byte(sd_device);
+  }
+
+  // Store the first found byte
+  *(recv_bytes) = recv;
+
+  // Get the remaining expected bytes and load them into the return value
+  for(byte_num=0; byte_num<num_bytes-1; byte_num++) {
+    SPI_send_byte(sd_device, 0xFF);
+    *(recv_bytes+byte_num) = SPI_recv_byte(sd_device);
+  }
+
+  return recv_bytes;
 }
