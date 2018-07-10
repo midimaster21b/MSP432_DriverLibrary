@@ -5,18 +5,20 @@
  *      Author: Joshua Edgcombe
  */
 
+#include <stdio.h>
+#include <stdint.h>
+
 #include "jedge_st7735.h"
 #include "jedge_systick.h"
 #include "jedge_spi.h"
-#include <stdio.h>
 
 // SPI device handle
 EUSCI_B_SPI_Type *EUSCI_device = NULL;
 
 // Configuration variables
-uint8_t *line_period = {0x01, 0x01};
-uint8_t *front_porch = {0x2C, 0x2C};
-uint8_t *back_porch  = {0x2D, 0x2D};
+uint8_t line_period[] = {0x01, 0x01};
+uint8_t front_porch[] = {0x2C, 0x2C};
+uint8_t back_porch[]  = {0x2D, 0x2D};
 
 void st7735_test(void) {
   st7735_setup();

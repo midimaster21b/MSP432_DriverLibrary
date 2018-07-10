@@ -49,7 +49,6 @@ void SPI_init(EUSCI_SPI_TYPE *EUSCI_device, EUSCI_SPI_config *config) {
 
 void SPI_send(EUSCI_SPI_TYPE *EUSCI_device, char *data) {
   unsigned address_offset = 0;
-  int i = 0;
 
   // Iterate through supplied data
   /* while(address_offset < data_length) { */

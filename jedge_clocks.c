@@ -36,7 +36,7 @@ void init_clocks(void) {
   // Initialize HSMCLK
   MAP_CS_initClockSignal(CS_HSMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
 
-  // Initialize SMCLK
+  // Initialize SMCLK (24 MHz)
   MAP_CS_initClockSignal(CS_SMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_2);
 }
 
