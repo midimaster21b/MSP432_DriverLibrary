@@ -81,6 +81,8 @@ typedef struct EUSCI_SPI_config_struct {
   uint8_t clk_sel_bit_7;
   uint8_t clk_sel_bit_6;
   uint8_t ste_mode;
+
+  uint16_t prescaler; // Fills BRW register
 } EUSCI_SPI_config;
 
 void SPI_init(EUSCI_SPI_TYPE *EUSCI_device, EUSCI_SPI_config *config);

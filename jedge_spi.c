@@ -27,7 +27,7 @@ void SPI_init(EUSCI_SPI_TYPE *EUSCI_device, EUSCI_SPI_config *config) {
 
   // Set the baud rate of the SPI device to whichever clock was used
   // TODO: Supply baud rate and determine clock divider programmatically
-  EUSCI_device->BRW = 1;
+  EUSCI_device->BRW = config->prescaler;
 
   // Port & Pin mode muxing
   if(EUSCI_device == EUSCI_B0_SPI) {
