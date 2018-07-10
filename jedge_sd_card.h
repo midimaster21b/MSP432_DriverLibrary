@@ -37,9 +37,10 @@
 #define SD_SET_WR_BLOCK_ERASE_COUNT_CMD 0x17
 #define SD_APP_SEND_OP_COND_CMD         0x29 // Check voltage range (SDC v2 only)
 
-
 // SD card functions
 void sd_init(void);
 void sd_test(void);
+uint8_t sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC);
+void sd_clock_only(uint8_t num_bytes);
 
 #endif /* JEDGE_SD_CARD_H_ */

@@ -33,17 +33,6 @@ EUSCI_SPI_config sd_spi_config = {
 };
 
 void sd_init(void) {
-  uint8_t *clock_only = malloc(100 * sizeof(uint8_t));
-
-  uint8_t reset_cmd[SD_BYTES_PER_CMD] = {
-    (command(SD_GO_IDLE_STATE_CMD, 0x00, SD_RESET_CMD_CRC) >> 40) & 0xFF,
-    (command(SD_GO_IDLE_STATE_CMD, 0x00, SD_RESET_CMD_CRC) >> 32) & 0xFF,
-    (command(SD_GO_IDLE_STATE_CMD, 0x00, SD_RESET_CMD_CRC) >> 24) & 0xFF,
-    (command(SD_GO_IDLE_STATE_CMD, 0x00, SD_RESET_CMD_CRC) >> 16) & 0xFF,
-    (command(SD_GO_IDLE_STATE_CMD, 0x00, SD_RESET_CMD_CRC) >> 8) & 0xFF,
-    (command(SD_GO_IDLE_STATE_CMD, 0x00, SD_RESET_CMD_CRC) >> 0) & 0xFF,
-  };
-
   // Initialize SPI peripheral
   sd_device = EUSCI_B2_SPI;
   SPI_init(sd_device, &sd_spi_config);
@@ -52,15 +41,48 @@ void sd_init(void) {
   systick_blocking_wait_ms(5);
 
   // Send >74 clock cycles to allow device to initialize
-  SPI_send_data(sd_device, clock_only, 80);
+  sd_clock_only(80);
 
   // Put the device into idle state
-  SPI_send_data(sd_device, reset_cmd, SD_BYTES_PER_CMD);
+  sd_send_command(SD_GO_IDLE_STATE_CMD, 0x00, SD_RESET_CMD_CRC);
 
   // Wait for the response...
-  SPI_send_data(sd_device, clock_only, 80);
+  sd_clock_only(80);
 }
 
 void sd_test(void) {
   sd_init();
+}
+
+uint8_t sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC) {
+  uint8_t cmd[SD_BYTES_PER_CMD];
+
+  // Leading 01b followed by command number
+  cmd[0] = (0x01 << 6) | (command & 0x3F);
+  cmd[1] = (argument >> 24) & 0xFF;
+  cmd[2] = (argument >> 16) & 0xFF;
+  cmd[3] = (argument >> 8) & 0xFF;
+  cmd[4] = argument & 0xFF;
+  cmd[5] = ((CRC & 0x7F) << 1) | 0x01; // 7-bit CRC + stop bit
+
+  SPI_send_data(sd_device, cmd, sizeof(cmd));
+
+  // Make this the response of the SD card
+  return 0x00;
+}
+
+void sd_clock_only(uint8_t num_bytes) {
+  // Initialize all 0xFF's for clock signal
+  uint8_t *clock_only = malloc(num_bytes * sizeof(uint8_t));
+
+  int offset;
+
+  // Set all locations to 0xFF (all high)
+  for(offset=0; offset<num_bytes; offset++) {
+    *(clock_only+offset) = 0xFF;
+  }
+
+  SPI_send_data(sd_device, clock_only, num_bytes);
+
+  free(clock_only);
 }
