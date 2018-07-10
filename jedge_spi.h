@@ -13,23 +13,60 @@
 
 // Define which SPI eUSCI type to use
 #ifndef EUSCI_SPI_TYPE
-// Defaults to eUSCI_B0
+// Defaults to eUSCI_B
 #define EUSCI_SPI_TYPE EUSCI_B_SPI_Type
 
-// Define ports and pins to be used
-#define SPI_PORT P1
-#define SPI_STE_PIN  4
-#define SPI_CLK_PIN  5
-#define SPI_MOSI_PIN 6
-#define SPI_MISO_PIN 7
+/////////////
+// EUSCI_B0
+/////////////
+#define SPI_B0_PORT P1
+#define SPI_B0_STE_PIN  4
+#define SPI_B0_CLK_PIN  5
+#define SPI_B0_MOSI_PIN 6
+#define SPI_B0_MISO_PIN 7
 
 // Define pin masks
-#define SPI_STE_MASK  1 << SPI_STE_PIN
-#define SPI_CLK_MASK  1 << SPI_CLK_PIN
-#define SPI_MOSI_MASK 1 << SPI_MOSI_PIN
-#define SPI_MISO_MASK 1 << SPI_MISO_PIN
+#define SPI_B0_STE_MASK  1 << SPI_B0_STE_PIN
+#define SPI_B0_CLK_MASK  1 << SPI_B0_CLK_PIN
+#define SPI_B0_MOSI_MASK 1 << SPI_B0_MOSI_PIN
+#define SPI_B0_MISO_MASK 1 << SPI_B0_MISO_PIN
 
-#define SPI_PIN_MASK (SPI_STE_MASK|SPI_CLK_MASK|SPI_MOSI_MASK|SPI_MISO_MASK)
+#define SPI_B0_PIN_MASK (SPI_B0_STE_MASK|SPI_B0_CLK_MASK|SPI_B0_MOSI_MASK|SPI_B0_MISO_MASK)
+
+/////////////
+// EUSCI_B1
+/////////////
+#define SPI_B1_PORT P6
+#define SPI_B1_STE_PIN  2
+#define SPI_B1_CLK_PIN  3
+#define SPI_B1_MOSI_PIN 4
+#define SPI_B1_MISO_PIN 5
+
+// Define pin masks
+#define SPI_B1_STE_MASK  1 << SPI_B1_STE_PIN
+#define SPI_B1_CLK_MASK  1 << SPI_B1_CLK_PIN
+#define SPI_B1_MOSI_MASK 1 << SPI_B1_MOSI_PIN
+#define SPI_B1_MISO_MASK 1 << SPI_B1_MISO_PIN
+
+#define SPI_B1_PIN_MASK (SPI_B1_STE_MASK|SPI_B1_CLK_MASK|SPI_B1_MOSI_MASK|SPI_B1_MISO_MASK)
+
+/////////////
+// EUSCI_B2
+/////////////
+#define SPI_B2_PORT P3
+#define SPI_B2_STE_PIN  4
+#define SPI_B2_CLK_PIN  5
+#define SPI_B2_MOSI_PIN 6
+#define SPI_B2_MISO_PIN 7
+
+// Define pin masks
+#define SPI_B2_STE_MASK  1 << SPI_B2_STE_PIN
+#define SPI_B2_CLK_MASK  1 << SPI_B2_CLK_PIN
+#define SPI_B2_MOSI_MASK 1 << SPI_B2_MOSI_PIN
+#define SPI_B2_MISO_MASK 1 << SPI_B2_MISO_PIN
+
+#define SPI_B2_PIN_MASK (SPI_B2_STE_MASK|SPI_B2_CLK_MASK|SPI_B2_MOSI_MASK|SPI_B2_MISO_MASK)
+
 #endif
 
 typedef struct EUSCI_SPI_config_struct {

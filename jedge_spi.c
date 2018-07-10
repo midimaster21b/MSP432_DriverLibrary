@@ -9,6 +9,7 @@
 #include "msp.h"
 #include "jedge_spi.h"
 
+// TODO: Add support for eUSCI_A
 void SPI_init(EUSCI_SPI_TYPE *EUSCI_device, EUSCI_SPI_config *config) {
   // Put the peripheral in a reset state
   EUSCI_device->CTLW0 |= UCSWRST;
@@ -29,8 +30,18 @@ void SPI_init(EUSCI_SPI_TYPE *EUSCI_device, EUSCI_SPI_config *config) {
   EUSCI_device->BRW = 1;
 
   // Port & Pin mode muxing
-  SPI_PORT->SEL0 |= SPI_PIN_MASK;
-  SPI_PORT->SEL1 &= ~SPI_PIN_MASK;
+  if(EUSCI_device == EUSCI_B0_SPI) {
+    SPI_B0_PORT->SEL0 |= SPI_B0_PIN_MASK;
+    SPI_B0_PORT->SEL1 &= ~SPI_B0_PIN_MASK;
+  }
+  else if(EUSCI_device == EUSCI_B1_SPI) {
+    SPI_B1_PORT->SEL0 |= SPI_B1_PIN_MASK;
+    SPI_B1_PORT->SEL1 &= ~SPI_B1_PIN_MASK;
+  }
+  else if(EUSCI_device == EUSCI_B2_SPI) {
+    SPI_B2_PORT->SEL0 |= SPI_B2_PIN_MASK;
+    SPI_B2_PORT->SEL1 &= ~SPI_B2_PIN_MASK;
+  }
 
   // Enable the peripheral
   EUSCI_device->CTLW0 &= ~UCSWRST;
