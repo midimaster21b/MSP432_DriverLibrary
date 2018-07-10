@@ -65,6 +65,22 @@ void SPI_send(EUSCI_SPI_TYPE *EUSCI_device, char *data) {
   }
 }
 
+void SPI_send_data(EUSCI_SPI_TYPE *EUSCI_device, uint8_t *data, uint16_t data_length) {
+  unsigned address_offset = 0;
+
+  // Iterate through supplied data
+  while(address_offset < data_length) {
+    // If transmit buffer is not empty, wait for it to be empty
+    while(!(EUSCI_device->IFG & UCTXIFG));
+
+    // Put character in buffer to be transferred
+    EUSCI_device->TXBUF = *(data+address_offset);
+
+    // Increment the address offset
+    address_offset = address_offset + 1;
+  }
+}
+
 uint8_t SPI_send_with_response(EUSCI_SPI_TYPE *EUSCI_device, uint8_t data) {
   // If transmit buffer is not empty, wait for it to be empty
   while(!(EUSCI_device->IFG & UCTXIFG));
