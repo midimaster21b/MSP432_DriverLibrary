@@ -34,6 +34,7 @@ EUSCI_SPI_config sd_spi_config = {
 
 uint8_t sd_init(void) {
   uint8_t *retval;
+  uint8_t card_type;
 
   // Set SD chip select pin to output
   SD_CS_PORT->DIR |= SD_CS_MASK;
@@ -55,6 +56,9 @@ uint8_t sd_init(void) {
   // USING MY SALEAE ANALYZER.
   systick_blocking_wait_ms(50);
 
+  /************************
+   * Enter idle mode/state
+   ************************/
   retval = sd_send_command(SD_GO_IDLE_STATE_CMD, 0x00, SD_RESET_CMD_CRC, SD_RESPONSE_R1);
 
   // Put the device into idle state (0x01 indicates success)
@@ -70,11 +74,27 @@ uint8_t sd_init(void) {
     free(retval);
   }
 
-  /* systick_blocking_wait_ms(5); */
-
+  /***************************************************
+   * Check which kind of card is plugged in.
+   * NOTE: Only handles high capacity cards currently
+   ***************************************************/
   retval = sd_send_command(SD_SEND_IF_COND_CMD, 0x000001AA, SD_CMD8_INIT_CRC, SD_RESPONSE_R7);
 
-  free(retval);
+  if(*retval == 0x01 && *(retval+3) == 0x01 && *(retval+4) == 0xAA) {
+    // This is good! (High capacity card detected)
+    free(retval);
+
+    card_type = SD_HIGH_CAP_CARD;
+  }
+  else {
+    return SD_OP_FAILURE;
+  }
+
+  switch(card_type) {
+  case SD_HIGH_CAP_CARD:
+    sd_initialize_high_capacity();
+    break;
+  }
 
   return SD_OP_SUCCESS;
 }
@@ -198,10 +218,25 @@ uint8_t *sd_recv_bytes(uint16_t num_bytes) {
   *(recv_bytes) = recv;
 
   // Get the remaining expected bytes and load them into the return value
-  for(byte_num=0; byte_num<num_bytes-1; byte_num++) {
+  for(byte_num=1; byte_num<num_bytes; byte_num++) {
     SPI_send_byte(sd_device, 0xFF);
     *(recv_bytes+byte_num) = SPI_recv_byte(sd_device);
   }
 
   return recv_bytes;
+}
+
+void sd_initialize_high_capacity(void) {
+  uint8_t *retval;
+
+  free(sd_send_command(SD_APP_CMD_CMD, 0x00000000, 0x00, SD_RESPONSE_R1));
+  retval = sd_send_command(SD_APP_SEND_OP_COND_CMD, 0x40000000, 0x00, SD_RESPONSE_R1);
+
+  while(*retval == 0x01) {
+    free(retval);
+    free(sd_send_command(SD_APP_CMD_CMD, 0x00000000, 0x00, SD_RESPONSE_R1));
+    retval = sd_send_command(SD_APP_SEND_OP_COND_CMD, 0x40000000, 0x00, SD_RESPONSE_R1);
+  }
+
+  retval = sd_send_command(SD_APP_CMD_CMD, 0x00000000, 0x00, SD_RESPONSE_R3);
 }

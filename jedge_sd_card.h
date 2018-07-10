@@ -42,6 +42,11 @@
 #define SD_SET_WR_BLOCK_ERASE_COUNT_CMD 0x17
 #define SD_APP_SEND_OP_COND_CMD         0x29 // Check voltage range (SDC v2 only)
 
+/****************
+ * SD card types
+ ****************/
+#define SD_HIGH_CAP_CARD 0x01
+
 /*************************************
  * Function return status definitions
  *************************************/
@@ -68,5 +73,6 @@ void sd_clock_only(uint32_t num_bytes);
 void sd_clock_only_time(uint32_t milliseconds);
 uint8_t sd_recv_byte(void);
 uint8_t *sd_recv_bytes(uint16_t num_bytes);
+void sd_initialize_high_capacity(void);
 
 #endif /* JEDGE_SD_CARD_H_ */
