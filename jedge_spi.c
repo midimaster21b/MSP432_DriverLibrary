@@ -80,6 +80,15 @@ void SPI_send_data(EUSCI_SPI_TYPE *EUSCI_device, uint8_t *data, uint16_t data_le
   }
 }
 
+void SPI_send_byte(EUSCI_SPI_TYPE *EUSCI_device, uint8_t data) {
+  // If transmit buffer is not empty, wait for it to be empty
+  while(!(EUSCI_device->IFG & UCTXIFG));
+
+  // Put character in buffer to be transferred
+  EUSCI_device->TXBUF = data;
+}
+
+
 uint8_t SPI_send_with_response(EUSCI_SPI_TYPE *EUSCI_device, uint8_t data) {
   // If transmit buffer is not empty, wait for it to be empty
   while(!(EUSCI_device->IFG & UCTXIFG));
