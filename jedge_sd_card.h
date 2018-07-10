@@ -9,11 +9,15 @@
 #define JEDGE_SD_CARD_H_
 
 /**********************
+ * Pin definitions
+ **********************/
+#define SD_CS_PORT P5
+#define SD_CS_PIN  2
+#define SD_CS_MASK 1 << SD_CS_PIN
+
+/**********************
  * Command definitions
  **********************/
-//                               Start bits    Command (Masked)       Argument (Masked)           CRC (Maksed)        Stop bit
-#define command(CMD, ARG, CRC) ((0x01 << 46) | ((CMD & 0x3F) << 40) | ((ARG & 0xFFFFFFFF) << 8) | ((CRC & 0x7F) << 1) | 0x01)
-
 #define SD_BYTES_PER_CMD 6
 #define SD_RESET_CMD_CRC 0x4A
 
@@ -41,6 +45,7 @@
 void sd_init(void);
 void sd_test(void);
 uint8_t sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC);
-void sd_clock_only(uint8_t num_bytes);
+void sd_clock_only(uint32_t num_bytes);
+void sd_clock_only_time(uint32_t milliseconds);
 
 #endif /* JEDGE_SD_CARD_H_ */
