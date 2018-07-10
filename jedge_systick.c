@@ -38,13 +38,17 @@ void systick_blocking_wait_ms(uint32_t delay) {
   systick_stop();
 
   // Set it up for the appropriate delay in ms (blocking: no interrupt)
-  systick_setup(delay * MASTER_CLK_FREQ / 1000, 0);
+  systick_setup(systick_ms_to_cycles(delay), 0);
 
   // Start the timer
   systick_start();
 
   // Poll on the interrupt status flag
   while(!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk));
+}
+
+uint32_t systick_ms_to_cycles(uint32_t milliseconds) {
+  return milliseconds * (MASTER_CLK_FREQ / 1000);
 }
 
 void systick_test(void) {

@@ -11,12 +11,13 @@
 #include <stdint.h>
 #include "msp.h"
 
-#define MASTER_CLK_FREQ 3000000
+#define MASTER_CLK_FREQ 48000000
 
 void systick_setup(uint32_t max_value, uint8_t interrupt_enable);
 void systick_start(void);
 void systick_stop(void);
 void systick_blocking_wait_ms(uint32_t delay);
+uint32_t systick_ms_to_cycles(uint32_t milliseconds);
 
 // Test functions
 void systick_test(void);
