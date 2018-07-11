@@ -11,7 +11,7 @@
 #ifndef JEDGE_SCCB_H_
 #define JEDGE_SCCB_H_
 
-#define SCCB_EUSCI_DEVICE EUSCI_B1_BASE
+#define SCCB_EUSCI_DEVICE EUSCI_B1
 #define SCCB_TEST_ADDRESS 22
 
 #define SCCB_SDA_PORT P6
@@ -36,6 +36,6 @@ typedef struct SCCB_Message {
 void sccb_test(void);
 void sccb_init(EUSCI_B_Type *EUSCI_device);
 void sccb_write_register(EUSCI_B_Type *EUSCI_device, uint8_t slave_address, uint8_t reg_address, uint8_t data);
-uint8_t sccb_read_register(EUSCI_B_Type *EUSCI_device, uint8_t slave_address);
+uint8_t sccb_read_register(EUSCI_B_Type *EUSCI_device, uint8_t slave_address, uint8_t reg_address);
 
 #endif /* JEDGE_SCCB_H_ */
