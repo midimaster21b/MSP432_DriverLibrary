@@ -12,26 +12,38 @@
 EUSCI_B_Type *ov7670_eusci_device;
 
 void ov7670_test(void) {
-  /* EUSCI_B_Type *test_dev = OV7670_EUSCI_INTERFACE; */
-  /* ov7670_init(test_dev); */
+  EUSCI_B_Type *test_dev = OV7670_EUSCI_INTERFACE;
+  ov7670_init(test_dev);
 
-  ov7670_init_clock_signal();
+  uint8_t test_reg = sccb_read_register(test_dev, OV7670_SLAVE_READ_ADDR, OV7670_REG_BLUE);
+
+  uint8_t fox = 0;
+  fox = fox + 1;
 }
 
 void ov7670_init(EUSCI_B_Type *device) {
   // Assign supplied device to driver device
   ov7670_eusci_device = device;
 
-  // Setup pins (Data)
-  OV7670_DATA_PORT->DIR &= ~OV7670_DATA_MASK;
+  ov7670_init_pins();
 
   // Setup pins (Peripherals) (Pixel clock)
-  ov7670_init_clock_signal();
+  /* ov7670_init_clock_signal(); */
 
   // Initialize SCCB communication interface
   sccb_init(ov7670_eusci_device);
 
   // Setup interrupts (HS, VS, & Pixel Clk?)
+}
+
+void ov7670_init_pins(void) {
+  // Setup pins (Data)
+  OV7670_DATA_PORT->DIR &= ~OV7670_DATA_MASK;
+
+  // Set to input
+  OV7670_VSYNC_PORT->DIR &= ~OV7670_VSYNC_MASK;
+  OV7670_HSYNC_PORT->DIR &= ~OV7670_HSYNC_MASK;
+  OV7670_PIXEL_CLK_PORT->DIR &= ~OV7670_PIXEL_CLK_MASK;
 }
 
 void ov7670_init_clock_signal(void) {

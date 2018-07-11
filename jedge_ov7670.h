@@ -13,13 +13,31 @@
  *****************************/
 #define OV7670_EUSCI_INTERFACE EUSCI_B1
 
+// NOTE: Current implementation requires a single port to be used for data input
 #define OV7670_DATA_PORT P9
 #define OV7670_DATA_MASK 0xFF
+
+#define OV7670_VSYNC_PORT     P4
+#define OV7670_VSYNC_PIN      0
+#define OV7670_VSYNC_MASK     1 << OV7670_VSYNC_PIN
+
+#define OV7670_HSYNC_PORT     P4
+#define OV7670_HSYNC_PIN      1
+#define OV7670_HSYNC_MASK     1 << OV7670_HSYNC_PIN
+
+#define OV7670_PIXEL_CLK_PORT P4
+#define OV7670_PIXEL_CLK_PIN  2
+#define OV7670_PIXEL_CLK_MASK 1 << OV7670_PIXEL_CLK_PIN
 
 #define OV7670_CLK_TIMER TIMER_A0
 #define OV7670_CLK_PORT  P7
 #define OV7670_CLK_PIN   3
 #define OV7670_CLK_MASK  (1 << OV7670_CLK_PIN)
+
+/* #define OV7670_SLAVE_WRITE_ADDR 0x42 */
+/* #define OV7670_SLAVE_READ_ADDR  0x43 */
+#define OV7670_SLAVE_WRITE_ADDR 42
+#define OV7670_SLAVE_READ_ADDR  43
 
 /***********************
  * Register definitions
@@ -228,6 +246,7 @@
 
 void ov7670_test(void);
 void ov7670_init(EUSCI_B_Type *device);
+void ov7670_init_pins(void);
 void ov7670_init_clock_signal(void);
 
 #endif /* JEDGE_OV7670_H_ */
