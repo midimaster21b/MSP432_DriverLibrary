@@ -13,7 +13,6 @@
 
 #include "jedge_sd_card.h"
 
-
 EUSCI_B_SPI_Type *sd_device;
 
 // Create SPI configuration struct
@@ -96,17 +95,58 @@ uint8_t sd_init(void) {
     break;
   }
 
+  // Reinitialize SPI connection to 12 MHz
+  /* sd_spi_config.prescaler = 2; */
+  /* SPI_init(sd_device, &sd_spi_config); */
+
   return SD_OP_SUCCESS;
 }
 
 void sd_test(void) {
+  uint8_t replacement_data[SD_BLOCK_SIZE] = { 0 };
+  uint8_t replacement_CRC[2] = { 0 };
+
+  uint16_t temp;
+
+  // Initialize replacement data to 0x0F
+  for(temp=0; temp<SD_BLOCK_SIZE; temp++) {
+    replacement_data[temp] = 0x0F;
+  }
+
+  // Initialize the SD card
   sd_init();
+
+  systick_blocking_wait_ms(1);
+
+  // Read the data at location zero
+  free(sd_read_block(0));
+
+  systick_blocking_wait_ms(1);
+
+  // Read the initial data into original data
+  free(sd_read_block(1));
+
+  systick_blocking_wait_ms(1);
+
+  // Write replacement data onto the block
+  sd_write_block(0, replacement_data, replacement_CRC);
+
+  systick_blocking_wait_ms(1);
+
+  // Verify the replacement data was written
+  sd_read_block(0);
+
+  systick_blocking_wait_ms(1);
+
+  sd_read_block(1);
+
+  systick_blocking_wait_ms(1);
 }
 
 uint8_t *sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC, uint8_t response_type) {
   uint8_t cmd[SD_BYTES_PER_CMD];
 
-  // Set SD chip select pin low(active?)
+  // Set SD chip select pin low(active)
   SD_CS_PORT->OUT &= ~SD_CS_MASK;
 
   // Leading 01b followed by command number
@@ -138,12 +178,6 @@ uint8_t *sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC, uint8_
   // Receive the response
   recv = sd_recv_bytes(num_recv_bytes);
 
-  // Set SD chip select pin inactive (high)
-  /* SD_CS_PORT->OUT |= SD_CS_MASK; */
-
-  // Send two bytes to ensure SD card doesn't hog MISO line
-  /* sd_clock_only(2); */
-
   // TODO: Make this the response of the SD card
   return recv;
 }
@@ -170,8 +204,8 @@ void sd_clock_only_time(uint32_t milliseconds) {
 }
 
 // TODO: Add timeout to function
-uint8_t sd_recv_byte(void) {
-  uint8_t recv = 0xFF;
+uint8_t sd_recv_byte(uint8_t exclude_byte) {
+  uint8_t recv = exclude_byte;
 
   // If data is available, receive it first
   if(sd_device->IFG & UCRXIFG) {
@@ -179,7 +213,7 @@ uint8_t sd_recv_byte(void) {
   }
 
   // Otherwise, send a byte to receive a byte (well, keep the clock going at least)
-  while(recv == 0xFF) {
+  while(recv == exclude_byte) {
     SPI_send_byte(sd_device, 0xFF);
     recv = SPI_recv_byte(sd_device);
   }
@@ -238,5 +272,62 @@ void sd_initialize_high_capacity(void) {
     retval = sd_send_command(SD_APP_SEND_OP_COND_CMD, 0x40000000, 0x00, SD_RESPONSE_R1);
   }
 
-  retval = sd_send_command(SD_APP_CMD_CMD, 0x00000000, 0x00, SD_RESPONSE_R3);
+  free(retval);
+
+  retval = sd_send_command(SD_READ_OCR_CMD, 0x00000000, 0x00, SD_RESPONSE_R3);
+
+  if(*(retval+1) & 0x40) {
+    // SD Ver. 2+ (Block address)
+    free(retval);
+  }
+  else {
+    // SD Ver. 2+ (Byte address)
+    free(retval);
+
+    // Set the block size to 512 bytes
+    free(sd_send_command(SD_SET_BLOCKLEN_CMD, 0x00000200, 0x00, SD_RESPONSE_R1));
+  }
+}
+
+// NOTE: address is the block number, not the byte address
+uint8_t *sd_read_block(uint32_t address) {
+  free(sd_send_command(SD_READ_SINGLE_BLOCK_CMD, address, 0x00, SD_RESPONSE_R1));
+
+  // For some reason I had it in my mind that the data size was going to be 513 bytes initially
+  // so I tested receiving 520 and 513 appears appropriate unless 2-byte CRC is 0xFF...
+  // Why is this either 513 or 515? According to description Data token(1 byte), Data block(512 bytes), CRC(2 bytes)
+  // this should definitely be 515...
+  return sd_recv_bytes(515);
+}
+
+// NOTE: CRC must be 2-bytes, but doesn't need to be correct unless explicitly enabled
+// NOTE: address is the block number, not the byte address
+uint8_t sd_write_block(uint32_t address, uint8_t *data, uint8_t *CRC) {
+  uint8_t data_token[1] = {0xFE};
+
+  // Send initial write command expecting R1 response
+  free(sd_send_command(SD_WRITE_SINGLE_BLOCK_CMD, address, 0x00, SD_RESPONSE_R1));
+
+  // Send data packet (data token)
+  SPI_send_data(sd_device, data_token, 1);
+
+  // Send actual data to be written
+  SPI_send_data(sd_device, data, SD_BLOCK_SIZE);
+
+  // Send CRC bytes (2 bytes)
+  SPI_send_data(sd_device, CRC, 2);
+
+  // Get data response packet
+  uint8_t *response = sd_recv_bytes(1);
+
+  if((*response & 0x1F) != 0x05) {
+    // Either failure due to rejected CRC error(0x0B) or a write error(0x0D)
+    return SD_OP_FAILURE;
+  }
+
+  // Wait until something other than 0x00 is returned.
+  // The SD card is busy while the line is low.
+  while(sd_recv_byte(0x00) == 0x00);
+
+  return SD_OP_SUCCESS;
 }

@@ -18,6 +18,7 @@
 /**********************
  * Command definitions
  **********************/
+#define SD_BLOCK_SIZE    512
 #define SD_BYTES_PER_CMD 6
 #define SD_RESET_CMD_CRC 0x4A
 #define SD_CMD8_INIT_CRC 0x43
@@ -33,7 +34,7 @@
 #define SD_READ_SINGLE_BLOCK_CMD        0x11 // Read a single block
 #define SD_READ_MULTIPLE_BLOCK_CMD      0x12 // Read multiple blocks
 #define SD_SET_BLOCK_COUNT_CMD          0x17 // Set number of blocks to transfer in next multi-block read/write (MMC only)
-#define SD_WRITE_BLOCK_CMD              0x18 // Write a single block
+#define SD_WRITE_SINGLE_BLOCK_CMD       0x18 // Write a single block
 #define SD_WRITE_MULTIPLE_BLOCK_CMD     0x19 // Write multiple blocks
 #define SD_APP_CMD_CMD                  0x37 // Leading command of ACMD's
 #define SD_READ_OCR_CMD                 0x3A // Read OCR
@@ -64,15 +65,18 @@
 #define SD_RESPONSE_R3_NUM_BYTES 5
 #define SD_RESPONSE_R7_NUM_BYTES 5
 
-
 // SD card functions
 uint8_t sd_init(void);
 void sd_test(void);
 uint8_t *sd_send_command(uint8_t command, uint32_t argument, uint8_t CRC, uint8_t response_type);
 void sd_clock_only(uint32_t num_bytes);
 void sd_clock_only_time(uint32_t milliseconds);
-uint8_t sd_recv_byte(void);
+uint8_t sd_recv_byte(uint8_t exclude_byte);
 uint8_t *sd_recv_bytes(uint16_t num_bytes);
 void sd_initialize_high_capacity(void);
+
+// NOTE: address is the block number, not the byte address
+uint8_t *sd_read_block(uint32_t address);
+uint8_t sd_write_block(uint32_t address, uint8_t *data, uint8_t *CRC);
 
 #endif /* JEDGE_SD_CARD_H_ */
