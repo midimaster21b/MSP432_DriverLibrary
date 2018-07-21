@@ -13,7 +13,7 @@ EUSCI_B_Type *ov7670_eusci_device;
 
 void ov7670_test(void) {
   EUSCI_B_Type *test_dev = OV7670_EUSCI_INTERFACE;
-  ov7670_init(test_dev);
+  /* ov7670_init(test_dev); */
 
   uint8_t test_reg = sccb_read_register(test_dev, OV7670_SLAVE_READ_ADDR, OV7670_REG_BLUE);
 
@@ -31,7 +31,7 @@ void ov7670_init(EUSCI_B_Type *device) {
   /* ov7670_init_clock_signal(); */
 
   // Initialize SCCB communication interface
-  sccb_init(ov7670_eusci_device);
+  /* sccb_init(ov7670_eusci_device); */
 
   // Setup interrupts (HS, VS, & Pixel Clk?)
 }

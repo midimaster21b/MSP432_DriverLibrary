@@ -34,7 +34,12 @@ typedef struct SCCB_Message {
 } SCCB_Message;
 
 void sccb_test(void);
-void sccb_init(EUSCI_B_Type *EUSCI_device);
+void sccb_init(Timer_A_Type *timer_a);
+void sccb_init_pins(void);
+void sccb_init_timer(Timer_A_Type *timer_a);
+static void sccb_start_timer(void);
+void sccb_timer_handler(void);
+
 void sccb_write_register(EUSCI_B_Type *EUSCI_device, uint8_t slave_address, uint8_t reg_address, uint8_t data);
 uint8_t sccb_read_register(EUSCI_B_Type *EUSCI_device, uint8_t slave_address, uint8_t reg_address);
 

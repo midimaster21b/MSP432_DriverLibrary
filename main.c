@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "msp.h"
+#include "driverlib.h"
 #include "jedge_uart.h"
 #include "jedge_spi.h"
 #include "jedge_systick.h"
@@ -28,13 +29,16 @@ void main(void)
   init_clocks();
 
   // SCCB test
-  /* sccb_test(); */
+  sccb_test();
 
   // OV7670 test
   /* ov7670_test(); */
 
   // SD card test
   /* sd_test(); */
+
+  // Enable interrupts on the microcontroller
+  MAP_Interrupt_enableMaster();
 
   while(1) {
   }

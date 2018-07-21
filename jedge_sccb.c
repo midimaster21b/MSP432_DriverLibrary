@@ -7,56 +7,80 @@
 
 #include <stdint.h>
 #include "msp.h"
+#include "driverlib.h"
 #include "jedge_sccb.h"
+#include "jedge_timer_a.h"
+
+Timer_A_Type *sccb_timer;
 
 void sccb_test(void) {
-  EUSCI_B_Type *test_dev = SCCB_EUSCI_DEVICE;
+  Timer_A_Type *test_timer = TIMER_A0;
 
-  sccb_init(test_dev);
+  sccb_init(test_timer);
+  sccb_start_timer();
 
-  sccb_write_register(test_dev, SCCB_TEST_ADDRESS, 0x08, 0x38);
+  /* sccb_write_register(test_dev, SCCB_TEST_ADDRESS, 0x08, 0x38); */
 }
 
-void sccb_init(EUSCI_B_Type *EUSCI_device) {
-  // Put the peripheral in a reset state
-  EUSCI_device->CTLW0 |= EUSCI_B_CTLW0_SWRST;
+void sccb_init(Timer_A_Type *timer_a) {
+  sccb_init_pins();
+  sccb_init_timer(timer_a);
+}
 
-  // Initialize all eUSCI_B registers
-  // Set clock bits (SMCLK)
-  EUSCI_device->CTLW0 &= ~EUSCI_B_CTLW0_SSEL_MASK;
-  EUSCI_device->CTLW0 |= EUSCI_B_CTLW0_SSEL__SMCLK;
-
-  // Enable synchronous mode (USYNC = 1)
-  EUSCI_device->CTLW0 |= EUSCI_B_CTLW0_SYNC;
-
-  // Set mode to I2C (UCMODEx=11b)
-  /* EUSCI_device->CTLW0 &= ~EUSCI_B_CTLW0_MODE_MASK; */
-  EUSCI_device->CTLW0 |= EUSCI_B_CTLW0_MODE_3;
-
-  // Set to master mode (UCMST = 1)
-  EUSCI_device->CTLW0 |= EUSCI_B_CTLW0_MST;
-
-  // Master acknowledges last byte in master receiver mode
-  EUSCI_device->CTLW1 |= EUSCI_B_CTLW1_STPNACK;
-
-  // Enable SW ack using UCTXACK
-  EUSCI_device->CTLW1 |= EUSCI_B_CTLW1_SWACK;
-
-  // Set divider to achieve
-  EUSCI_device->BRW = 60;
-
-  // Configure ports
-  // TODO: Configure ports programmatically
-  SCCB_SDA_PORT->SEL0 |= SCCB_SDA_MASK;
+void sccb_init_pins(void) {
+  // Configure pins (GPIO, Output, High)
+  SCCB_SDA_PORT->SEL0 &= ~SCCB_SDA_MASK;
   SCCB_SDA_PORT->SEL1 &= ~SCCB_SDA_MASK;
+  SCCB_SDA_PORT->DIR  |= SCCB_SDA_MASK;
+  SCCB_SDA_PORT->OUT  |= SCCB_SDA_MASK;
 
-  SCCB_SCL_PORT->SEL0 |= SCCB_SCL_MASK;
+  SCCB_SCL_PORT->SEL0 &= ~SCCB_SCL_MASK;
   SCCB_SCL_PORT->SEL1 &= ~SCCB_SCL_MASK;
+  SCCB_SCL_PORT->DIR |= SCCB_SCL_MASK;
+  SCCB_SCL_PORT->OUT |= SCCB_SCL_MASK;
+}
 
-  // Clear UCSWRST (Enable peripheral)
-  EUSCI_device->CTLW0 &= ~EUSCI_B_CTLW0_SWRST;
+void sccb_init_timer(Timer_A_Type *timer_a) {
+  sccb_timer = timer_a;
+
+  // Reset the timer setup
+  sccb_timer->CTL |= TIMER_A_CTL_CLR;
+
+  // Set timer a clock
+  sccb_timer->CTL |= TIMER_A_CTL_SSEL__SMCLK;
+
+  // Set clock divider
+  sccb_timer->CTL |= TIMER_A_CTL_ID__1;
+
+  // Sets the peak value
+  sccb_timer->CCR[0] = 30;
 
   // Enable interrupts (if desired)
+  sccb_timer->CTL |= TIMER_A_CTL_IE;
+
+  MAP_Timer_A_registerInterrupt(TIMER_A0_BASE, TIMER_A_CCR0_INTERRUPT, sccb_timer_handler);
+
+  MAP_Timer_A_enableInterrupt(TIMER_A0_BASE);
+  MAP_Interrupt_enableInterrupt(INT_TA0_0);
+}
+
+void sccb_init_timer_driverlib(Timer_A_Type *timer_a) {
+
+  MAP_Timer_A_registerInterrupt(TIMER_A0_BASE, TIMER_A_CCR0_INTERRUPT, sccb_timer_handler);
+
+  MAP_Timer_A_enableInterrupt(TIMER_A0_BASE);
+  MAP_Interrupt_enableInterrupt(INT_TA0_0);
+}
+
+
+static void sccb_start_timer(void) {
+  // Start the timer
+  sccb_timer->CTL |= TIMER_A_CTL_MC__UP;
+}
+
+void sccb_timer_handler(void) {
+  MAP_Timer_A_clearInterruptFlag(TIMER_A0_BASE);
+  SCCB_SCL_PORT->OUT ^= SCCB_SCL_MASK;
 }
 
 void sccb_write_register(EUSCI_B_Type *EUSCI_device, uint8_t slave_address, uint8_t reg_address, uint8_t data) {
