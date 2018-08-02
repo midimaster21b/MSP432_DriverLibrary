@@ -1,45 +1,53 @@
-#include <stdint.h>
-#include "msp.h"
+/* DriverLib Includes */
 #include "driverlib.h"
-#include "jedge_uart.h"
-#include "jedge_spi.h"
-#include "jedge_systick.h"
-#include "jedge_clocks.h"
-#include "jedge_sccb.h"
-#include "jedge_ov7670.h"
-#include "jedge_sd_card.h"
 
-/**
- * main.c
- */
-void main(void)
+/* Standard Includes */
+#include <stdint.h>
+#include <stdbool.h>
+
+/* Custom Includes */
+
+
+// --- This function imitates police siren and light show ----
+void light_show(int bright)
 {
-  // stop watchdog timer
-  WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;
+  int wait = 1000-bright;
 
-  // UART Test
-  /* UART_test(); */
+  // Compare value should range from 500 Hz to 1 KHz
+  // Compute compare value using the value of "bright" that first ranges from 1 to 998 and then from 999 to 2
+  // After you devise a formula to compute the compare value, assign it to Timer A Compare register
+  // Use 50% DC
 
-  // SPI Test
-  /* SPI_test(); */
 
-  // SysTick Test
-  /* systick_test(); */
+  // Turn ON LEDA and LEDB
+  // Delay for "bright" time
+  // Turn OFF LEDA and LEDB
+  // Delay for "bright" time
 
-  init_clocks();
+  // Turn ON LEDC and LEDD
+  // Delay for "wait" time
+  // Turn OFF LEDC and LEDD
+  // Delay for "wait" time
+}
 
-  // SCCB test
-  sccb_test();
 
-  // OV7670 test
-  /* ov7670_test(); */
+int main(void)
+{
+  volatile int i;
 
-  // SD card test
-  /* sd_test(); */
+  // Stop Watchdog
 
-  // Enable interrupts on the microcontroller
-  MAP_Interrupt_enableMaster();
+  // Sets the direction of peripherals
+  // Initialize Systick peripheral
+  // Initialize Timer A peripheral
 
-  while(1) {
-  }
+
+  while(1)
+    {
+      for(i=1; i<999; i++)
+	light_show(i);
+
+      for(i=999; i>1; i--)
+	light_show(i);
+    }
 }
