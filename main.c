@@ -27,8 +27,8 @@ void light_show(int bright)
   
   // Compute the period (Max - (proportion * delta))
   uint32_t period = ONE_KHZ_PERIOD - ((wait * ONE_KHZ_PERIOD) - (wait * FIVE_HUNDRED_HZ_PERIOD)) / 999;
-  /* uint16_t period = 1000; */
 
+  // Set period and duty cycle
   jedge_pwm_set_frequency(period, period / 2);
 
   // Turn ON LEDA and LEDB
@@ -37,14 +37,12 @@ void light_show(int bright)
   // Turn OFF LEDA and LEDB
   off2();
 
+
   // Delay for "bright" time
   SysTick_delay(2 * bright);
 
   // Turn ON LEDC and LEDD
   on2();
-
-  // Delay for "wait" time
-  /* SysTick_delay(wait); */
 
   // Turn OFF LEDC and LEDD
   off1();
